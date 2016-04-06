@@ -5,13 +5,24 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 public class CellLayout extends ViewGroup {
 
     private int rowCount = 2;
     private int cellSize;
     private int spacing;
+    private View[][] table;
+
+    void readChild(){
+        table = new View[rowCount][rowCount];
+        View child;
+        CellLayoutParams cellLayoutParams;
+        for (int i = 0; i < rowCount * rowCount; i++) {
+            child = getChildAt(i);
+            cellLayoutParams = (CellLayoutParams)child.getLayoutParams();
+            table[cellLayoutParams.getRow()][cellLayoutParams.getColumn()] = child;
+        }
+    }
 
     public CellLayout(Context context) {
         super(context);
@@ -21,7 +32,6 @@ public class CellLayout extends ViewGroup {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CellLayout);
         rowCount = a.getInt(R.styleable.CellLayout_row_count, 2);
-        spacing = (int)a.getDimension(R.styleable.CellLayout_spacing, 8);
         a.recycle();
     }
 
@@ -29,7 +39,6 @@ public class CellLayout extends ViewGroup {
         super(context, attrs, defStyle);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CellLayout);
         rowCount = a.getInt(R.styleable.CellLayout_row_count, 2);
-        spacing = (int)a.getDimension(R.styleable.CellLayout_spacing, 8);
         a.recycle();
     }
 
@@ -79,12 +88,11 @@ public class CellLayout extends ViewGroup {
 
     private void childMeasure(){
         int childWidthSpec, childHeightSpec;
-        View child;
-        for (int i = 0; i < rowCount * rowCount; ++i) {
-                child = getChildAt(i);
+        for (int i = 0; i < rowCount ; ++i)
+            for (int j = 0; j < rowCount; ++j) {
                 childWidthSpec = MeasureSpec.makeMeasureSpec(cellSize - spacing * 2, MeasureSpec.EXACTLY);
                 childHeightSpec = MeasureSpec.makeMeasureSpec(cellSize - spacing * 2, MeasureSpec.EXACTLY);
-                child.measure(childWidthSpec, childHeightSpec);
+                table[i][j].measure(childWidthSpec, childHeightSpec);
             }
     }
 
@@ -94,8 +102,10 @@ public class CellLayout extends ViewGroup {
         int measureHeight = measureHeight(heightMeasureSpec);
 
         int size = Math.min(measuredWidth, measureHeight);
-        cellSize = (size - spacing * 2) / rowCount;
+        spacing = (int)(size * 0.03);
+        cellSize = (size - spacing) / rowCount;
 
+        readChild();
         childMeasure();
 
         setMeasuredDimension(size, size);
@@ -103,18 +113,30 @@ public class CellLayout extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        View child;
-        CellLayoutParams cellLayoutParams;
-        for (int i = 0; i < rowCount * rowCount; i++) {
-                child = getChildAt(i);
-                cellLayoutParams = (CellLayoutParams)child.getLayoutParams();
-
-                int left = cellLayoutParams.getColumn() * cellSize + spacing * 2;
-                int top = cellLayoutParams.getRow() * cellSize + spacing * 2;
-                int right = (cellLayoutParams.getColumn() + 1) * cellSize;
-                int bottom = (cellLayoutParams.getRow() + 1) * cellSize;
-                child.layout(left, top, right, bottom);
+        for (int i = 0; i < rowCount; i++)
+            for (int j = 0; j < rowCount; ++j) {
+                int left = i * cellSize + spacing;
+                int top = j * cellSize + spacing;
+                int right = (i + 1) * cellSize;
+                int bottom = (j + 1) * cellSize;
+                table[i][j].layout(left, top, right, bottom);
             }
+    }
+
+    public void up(){
+
+    }
+
+    public void down(){
+
+    }
+
+    public void left(){
+
+    }
+
+    public void right(){
+
     }
 
     public static class CellLayoutParams extends ViewGroup.LayoutParams {
