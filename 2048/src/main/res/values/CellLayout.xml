@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CellLayout">
+        <attr name="row_count" format="integer"/>
+        <attr name="spacing" format="dimension" />
+        <attr name="layout_row" format="integer"/>
+        <attr name="layout_column" format="integer"/>
+    </declare-styleable>
+</resources>
